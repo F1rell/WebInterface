@@ -45,6 +45,7 @@ public class FormsTests {
         String expectedText = "Ваша заявка успешно отправлена! Наш менеджер свяжется с вами в ближайшее время.";
         assertEquals(expectedText, actualText);
         driver.close();
+        driver.quit();
     }
 
     @Test
