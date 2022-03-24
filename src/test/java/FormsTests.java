@@ -26,6 +26,7 @@ public class FormsTests {
         options.addArguments("--no-sandbox");
         options.addArguments("--headless");
         driver = new ChromeDriver(options);
+        driver.get("http://localhost:9999/");
     }
 
     @AfterEach
@@ -37,7 +38,6 @@ public class FormsTests {
 
     @Test
     public void testOfTrueValidation() {
-        driver.get("http://localhost:9999/");
         driver.findElement(By.cssSelector("[data-test-id = 'name'] input")).sendKeys("Нетология");
         driver.findElement(By.cssSelector("[data-test-id = 'phone'] input")).sendKeys("+88007001234");
         driver.findElement(By.cssSelector("[data-test-id = 'agreement']")).click();
@@ -50,13 +50,57 @@ public class FormsTests {
 
     @Test
     public void testNotTrueValidationOfName() {
-        driver.get("http://localhost:9999/");
         driver.findElement(By.cssSelector("[data-test-id = 'name'] input")).sendKeys("Netology");
         driver.findElement(By.cssSelector("[data-test-id = 'phone'] input")).sendKeys("+88007001234");
         driver.findElement(By.cssSelector("[data-test-id = 'agreement']")).click();
         driver.findElement(By.tagName("button")).click();
-        String actualText = driver.findElement(By.className("input__sub")).getText().trim();
+        String actualText = driver.findElement(By.cssSelector("[data-test-id = 'name'].input_invalid .input__sub")).getText().trim();
         String expectedText = "Имя и Фамилия указаные неверно. Допустимы только русские буквы, пробелы и дефисы.";
+        assertEquals(expectedText, actualText);
+        driver.close();
+    }
+
+    @Test
+    public void testNotTrueValidationOfPhone() {
+        driver.findElement(By.cssSelector("[data-test-id = 'name'] input")).sendKeys("Нетология");
+        driver.findElement(By.cssSelector("[data-test-id = 'phone'] input")).sendKeys("123");
+        driver.findElement(By.cssSelector("[data-test-id = 'agreement']")).click();
+        driver.findElement(By.tagName("button")).click();
+        String actualText = driver.findElement(By.cssSelector("[data-test-id = 'phone'].input_invalid .input__sub")).getText().trim();
+        String expectedText = "Телефон указан неверно. Должно быть 11 цифр, например, +79012345678.";
+        assertEquals(expectedText, actualText);
+        driver.close();
+    }
+
+    @Test
+    public void testIfNotEnterName() {
+        driver.findElement(By.cssSelector("[data-test-id = 'phone'] input")).sendKeys("+88007001234");
+        driver.findElement(By.cssSelector("[data-test-id = 'agreement']")).click();
+        driver.findElement(By.tagName("button")).click();
+        String actualText = driver.findElement(By.cssSelector("[data-test-id = 'name'].input_invalid .input__sub")).getText().trim();
+        String expectedText = "Поле обязательно для заполнения";
+        assertEquals(expectedText, actualText);
+        driver.close();
+    }
+
+    @Test
+    public void testIfNotEnterPhone() {
+        driver.findElement(By.cssSelector("[data-test-id = 'name'] input")).sendKeys("Нетология");
+        driver.findElement(By.cssSelector("[data-test-id = 'agreement']")).click();
+        driver.findElement(By.tagName("button")).click();
+        String actualText = driver.findElement(By.cssSelector("[data-test-id = 'phone'].input_invalid .input__sub")).getText().trim();
+        String expectedText = "Поле обязательно для заполнения";
+        assertEquals(expectedText, actualText);
+        driver.close();
+    }
+
+    @Test
+    public void testIfNotClickCheckbox() {
+        driver.findElement(By.cssSelector("[data-test-id = 'name'] input")).sendKeys("Нетология");
+        driver.findElement(By.cssSelector("[data-test-id = 'phone'] input")).sendKeys("+88007001234");
+        driver.findElement(By.tagName("button")).click();
+        String actualText = driver.findElement(By.cssSelector("[data-test-id = 'agreement'].input_invalid .checkbox__text")).getText().trim();
+        String expectedText = "Я соглашаюсь с условиями обработки и использования моих персональных данных и разрешаю сделать запрос в бюро кредитных историй";
         assertEquals(expectedText, actualText);
         driver.close();
     }
